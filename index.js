@@ -2,6 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import mercadopago from 'mercadopago';
+import history from 'connect-history-api-fallback';
 import { PORT, HOST, MP_TOKEN } from './config.js';
 
 const app = express();
@@ -12,7 +13,8 @@ mercadopago.configure({
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(express.static('public'));
+app.use(history());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 app.get('/', function (req, res) {
