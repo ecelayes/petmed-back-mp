@@ -1,59 +1,60 @@
-
 import express from 'express';
 import cors from 'cors';
-import mercadopago from 'mercadopago';
-import history from 'connect-history-api-fallback';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { PORT, HOST, MP_TOKEN } from './config.js';
+/* import history from 'connect-history-api-fallback'; */
 
 const app = express();
+const client = new MercadoPagoConfig({ accessToken: MP_TOKEN });
 
-mercadopago.configure({
-  access_token: MP_TOKEN,
-});
-
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-app.use(history());
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static('public'));
+/* app.use(history()); */
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
   res.send('El servidor de MercadoPago funciona! :)');
 });
 
-app.post('/create_preference', (req, res) => {
-  let preference = {
-    items: [
-      {
-        title: req.body.description,
-        unit_price: Number(req.body.price),
-        quantity: Number(req.body.quantity),
-      }
-    ],
-    back_urls: {
-      'success': `${HOST}/afiliacion`,
-      'failure': `${HOST}/pre-afiliacion`,
-      'pending': `${HOST}/afiliacion`
-    },
-    payment_methods: {
-      'excluded_payment_types': [
+app.post('/create_preference', async (req, res) => {
+  try {
+    let body = {
+      items: [
         {
-          'id': 'ticket'
+          title: req.body.title,
+          quantity: Number(req.body.quantity),
+          price: Number(req.body.price),
+          currency_id: 'ARS',
         }
       ],
-      'installments': 1
-    },
-    statement_descriptor: 'PetMed',
-    auto_return: 'approved'
-  };
-  mercadopago.preferences.create(preference)
-    .then(function (response) {
-      res.json({
-        id: response.body.id
-      });
-    }).catch(function (error) {
-      console.log(error);
-    });
+      back_urls: {
+        'success': `${HOST}/new/afiliacion`,
+        'failure': `${HOST}/new/pre-afiliacion`,
+        'pending': `${HOST}/new/afiliacion`
+      },
+      payment_methods: {
+        'excluded_payment_types': [
+          {
+            'id': 'ticket'
+          }
+        ],
+        'installments': 1
+      },
+      statement_descriptor: 'PetMed',
+      auto_return: 'approved'
+    };
+
+    const preference = new Preference(client);
+    const result = await preference.create({ body });
+
+    res.json({
+      id: result.id,
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Error creating preference' });
+  }
 });
 
 app.listen(PORT, () => {
