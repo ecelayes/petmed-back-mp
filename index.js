@@ -24,7 +24,7 @@ app.post('/create_preference', async (req, res) => {
         {
           title: req.body.title,
           quantity: Number(req.body.quantity),
-          price: Number(req.body.price),
+          unit_price: Number(req.body.price),
           currency_id: 'ARS',
         }
       ],
