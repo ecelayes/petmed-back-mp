@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { PORT, HOST, MP_TOKEN } from './config.js';
-/* import history from 'connect-history-api-fallback'; */
+import history from 'connect-history-api-fallback';
 
 const app = express();
 const client = new MercadoPagoConfig({ accessToken: MP_TOKEN });
@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
-/* app.use(history()); */
+app.use(history());
 
 app.get('/', (req, res) => {
   res.send('El servidor de MercadoPago funciona! :)');
