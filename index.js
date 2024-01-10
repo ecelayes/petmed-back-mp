@@ -29,9 +29,9 @@ app.post('/create_preference', async (req, res) => {
         }
       ],
       back_urls: {
-        'success': `${HOST}/new/afiliacion`,
+        'success': `${HOST}/new/afiliacion-usuario`,
         'failure': `${HOST}/new/pre-afiliacion`,
-        'pending': `${HOST}/new/afiliacion`
+        'pending': `${HOST}/new/afiliacion-usuario`
       },
       payment_methods: {
         'excluded_payment_types': [
